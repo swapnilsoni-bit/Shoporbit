@@ -1,24 +1,24 @@
 import React, { createContext, useContext, useReducer, useEffect, useRef } from 'react';
 
-// Define action types as constants to avoid typos
-const ACTIONS = {
-  FETCH_START: 'FETCH_PRODUCTS_START',
-  FETCH_SUCCESS: 'FETCH_PRODUCTS_SUCCESS',
-  FETCH_ERROR: 'FETCH_PRODUCTS_ERROR',
-};
-
-// Initial state for the products context
-const initialState = {
-  products: [],
-  status: 'idle', // possible values: 'idle' | 'loading' | 'succeeded' | 'failed'
-  error: null,
-};
-
-// Context creation
 const ProductsContext = createContext();
 const ProductsDispatchContext = createContext();
 
-// Reducer function to handle state updates
+export const ACTIONS = {
+  FETCH_START: 'FETCH_PRODUCTS_START',
+  FETCH_SUCCESS: 'FETCH_PRODUCTS_SUCCESS',
+  FETCH_ERROR: 'FETCH_PRODUCTS_ERROR',
+  SET_CATEGORIES: 'SET_CATEGORIES',
+  SET_SELECTED_CATEGORY: 'SET_SELECTED_CATEGORY'
+};
+
+const initialState = {
+  products: [],
+  categories: [],
+  selectedCategory: null,
+  status: 'idle',
+  error: null,
+};
+
 function productsReducer(state, action) {
   switch (action.type) {
     case ACTIONS.FETCH_START:
@@ -35,7 +35,17 @@ function productsReducer(state, action) {
         ...state, 
         status: 'failed', 
         error: action.payload,
-        products: [] 
+        products: []
+      };
+    case ACTIONS.SET_CATEGORIES:
+      return {
+        ...state,
+        categories: action.payload
+      };
+    case ACTIONS.SET_SELECTED_CATEGORY:
+      return {
+        ...state,
+        selectedCategory: action.payload
       };
     default:
       return state;
@@ -44,27 +54,42 @@ function productsReducer(state, action) {
 
 export function ProductsProvider({ children }) {
   const [state, dispatch] = useReducer(productsReducer, initialState);
-  // Use useRef to track if the initial fetch has been made
   const initialized = useRef(false);
 
-  // Fetch products data
   const fetchProducts = async () => {
     dispatch({ type: ACTIONS.FETCH_START });
     try {
-      // Check for token in localStorage
       const userData = localStorage.getItem('user');
       const token = userData ? JSON.parse(userData).token : null;
-
       const headers = token
         ? { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
         : { 'Content-Type': 'application/json' };
 
       const response = await fetch('https://fakestoreapi.com/products', { headers });
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch products');
-      }
+      if (!response.ok) throw new Error('Failed to fetch products');
+      const data = await response.json();
+      dispatch({ type: ACTIONS.FETCH_SUCCESS, payload: data });
+    } catch (error) {
+      dispatch({ type: ACTIONS.FETCH_ERROR, payload: error.message });
+    }
+  };
 
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('https://fakestoreapi.com/products/categories');
+      if (!response.ok) throw new Error('Failed to fetch categories');
+      const data = await response.json();
+      dispatch({ type: ACTIONS.SET_CATEGORIES, payload: data });
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchProductsByCategory = async (category) => {
+    dispatch({ type: ACTIONS.FETCH_START });
+    try {
+      const response = await fetch(`https://fakestoreapi.com/products/category/${category}`);
+      if (!response.ok) throw new Error('Failed to fetch products');
       const data = await response.json();
       dispatch({ type: ACTIONS.FETCH_SUCCESS, payload: data });
     } catch (error) {
@@ -73,15 +98,15 @@ export function ProductsProvider({ children }) {
   };
 
   useEffect(() => {
-    // Only fetch if we haven't already initialized
     if (!initialized.current) {
       initialized.current = true;
       fetchProducts();
+      fetchCategories();
     }
   }, []);
 
   return (
-    <ProductsContext.Provider value={state}>
+    <ProductsContext.Provider value={{ ...state, fetchProducts, fetchProductsByCategory }}>
       <ProductsDispatchContext.Provider value={dispatch}>
         {children}
       </ProductsDispatchContext.Provider>
@@ -89,7 +114,6 @@ export function ProductsProvider({ children }) {
   );
 }
 
-// Custom hooks for consuming the context
 export function useProducts() {
   const context = useContext(ProductsContext);
   if (context === undefined) {
