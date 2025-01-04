@@ -1,4 +1,5 @@
-import React, { createContext, useState, useContext } from 'react';
+// WishListContext.js
+import React, { createContext, useState, useContext, useCallback } from 'react';
 import { useCart } from './CartContext';
 
 const WishListContext = createContext();
@@ -7,29 +8,35 @@ export const WishlistProvider = ({ children }) => {
   const [wishlist, setWishlist] = useState([]);
   const { addToCart } = useCart();
 
-  const addToWishlist = (product) => {
-    setWishlist((prevWishlist) => {
-      if (prevWishlist.find((item) => item.id === product.id)) {
+  const addToWishlist = useCallback((product) => {
+    setWishlist(prevWishlist => {
+      if (prevWishlist.find(item => item.id === product.id)) {
         return prevWishlist;
       }
       return [...prevWishlist, product];
     });
-  };
+  }, []);
 
-  const removeFromWishlist = (productId) => {
-    setWishlist((prevWishlist) => prevWishlist.filter((item) => item.id !== productId));
-  };
+  const removeFromWishlist = useCallback((productId) => {
+    setWishlist(prevWishlist => 
+      prevWishlist.filter(item => item.id !== productId)
+    );
+  }, []);
 
-  const addAllToCart = () => {
-    wishlist.forEach((product) => {
-      addToCart(product, 1, ''); // Defaulting quantity to 1 and size to empty
-    });
-    setWishlist([]); // Optionally clear the wishlist after adding items to cart
-  };
+  const addAllToCart = useCallback(() => {
+    const addItemsSequentially = async () => {
+      for (const product of wishlist) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        addToCart(product, 1);
+      }
+      setWishlist([]);
+    };
+    addItemsSequentially();
+  }, [wishlist, addToCart]);
 
-  const isInWishlist = (productId) => {
-    return wishlist.some((item) => item.id === productId);
-  };
+  const isInWishlist = useCallback((productId) => {
+    return wishlist.some(item => item.id === productId);
+  }, [wishlist]);
 
   return (
     <WishListContext.Provider

@@ -139,11 +139,11 @@ const HomePage = () => {
                       onClick={() => handleProductClick(product)}
                       className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
                     >
-                      <div className="aspect-w-1 aspect-h-1 mb-6">
+                      <div className="relative w-full h-64 mb-6">
                         <img
                           src={product.image}
                           alt={product.title}
-                          className="w-full h-full object-contain rounded-lg"
+                          className="absolute inset-0 w-full h-full object-contain rounded-lg"
                           loading="lazy"
                         />
                       </div>
