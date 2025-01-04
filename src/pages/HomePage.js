@@ -71,7 +71,7 @@ const HomePage = () => {
       <div className="flex flex-col md:flex-row gap-8">
         <div className="w-full md:w-64 flex-shrink-0">
           <h2 className="text-2xl font-bold mb-4">Filters</h2>
-          <div >
+          <div>
             <h3 className="font-semibold mb-3">Categories</h3>
             <div className="space-y-2">
               {categories.map((category) => (
@@ -81,8 +81,15 @@ const HomePage = () => {
                     checked={selectedCategory === category}
                     onChange={() => handleCategoryChange(category)}
                     className="rounded text-blue-500 focus:ring-blue-500"
+                    disabled={status === 'loading' && selectedCategory}
                   />
-                  <span className="text-gray-700 capitalize">{category}</span>
+                  <span
+                    className={`text-gray-700 capitalize ${
+                      status === 'loading' && selectedCategory ? 'text-gray-400' : ''
+                    }`}
+                  >
+                    {category}
+                  </span>
                 </label>
               ))}
             </div>
