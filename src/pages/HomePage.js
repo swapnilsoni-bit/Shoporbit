@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProducts, useProductsDispatch } from '../contexts/ProductsContext';
-import { ChevronLeft, ChevronRight, Filter } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Filter, ArrowUpDown } from 'lucide-react';
 
 const HomePage = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -11,28 +11,33 @@ const HomePage = () => {
     products,
     categories,
     selectedCategory,
+    sortOrder,
     status,
     error,
     fetchProductsByCategory,
     fetchProducts,
+    setSortOrder,
   } = useProducts();
   const dispatch = useProductsDispatch();
 
-  // Memoize pagination calculations
-  const { totalPages, currentProducts } = useMemo(() => {
-    const total = Math.ceil(products.length / productsPerPage);
-    const startIndex = (currentPage - 1) * productsPerPage;
-    const current = products.slice(startIndex, startIndex + productsPerPage);
-    return { totalPages: total, currentProducts: current };
-  }, [products, currentPage, productsPerPage]);
+  useEffect(() => {
+    if (selectedCategory) {
+      fetchProductsByCategory(selectedCategory, sortOrder);
+    } else {
+      fetchProducts(sortOrder);
+    }
+  }, [selectedCategory, sortOrder]);
+
+  const totalPages = Math.ceil(products.length / productsPerPage);
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
 
   const handleCategoryChange = async (category) => {
     if (selectedCategory === category) {
       dispatch({ type: 'SET_SELECTED_CATEGORY', payload: null });
-      await fetchProducts();
     } else {
       dispatch({ type: 'SET_SELECTED_CATEGORY', payload: category });
-      await fetchProductsByCategory(category);
     }
     setCurrentPage(1);
   };
@@ -101,6 +106,29 @@ const HomePage = () => {
                       </span>
                     </label>
                   ))}
+                </div>
+              </div>
+              <div className="mt-8">
+                <h3 className="font-semibold mb-4 text-lg">Sort Order</h3>
+                <div className="space-y-3">
+                  <label className="flex items-center space-x-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      checked={sortOrder === 'asc'}
+                      onChange={() => setSortOrder('asc')}
+                      className="text-blue-500 focus:ring-blue-500 h-5 w-5"
+                    />
+                    <span className="text-gray-700">Ascending</span>
+                  </label>
+                  <label className="flex items-center space-x-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      checked={sortOrder === 'desc'}
+                      onChange={() => setSortOrder('desc')}
+                      className="text-blue-500 focus:ring-blue-500 h-5 w-5"
+                    />
+                    <span className="text-gray-700">Descending</span>
+                  </label>
                 </div>
               </div>
             </div>

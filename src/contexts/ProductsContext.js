@@ -8,13 +8,15 @@ export const ACTIONS = {
   FETCH_SUCCESS: 'FETCH_PRODUCTS_SUCCESS',
   FETCH_ERROR: 'FETCH_PRODUCTS_ERROR',
   SET_CATEGORIES: 'SET_CATEGORIES',
-  SET_SELECTED_CATEGORY: 'SET_SELECTED_CATEGORY'
+  SET_SELECTED_CATEGORY: 'SET_SELECTED_CATEGORY',
+  SET_SORT_ORDER: 'SET_SORT_ORDER'
 };
 
 const initialState = {
   products: [],
   categories: [],
   selectedCategory: null,
+  sortOrder: 'asc',
   status: 'idle',
   error: null,
 };
@@ -47,6 +49,11 @@ function productsReducer(state, action) {
         ...state,
         selectedCategory: action.payload
       };
+    case ACTIONS.SET_SORT_ORDER:
+      return {
+        ...state,
+        sortOrder: action.payload
+      };
     default:
       return state;
   }
@@ -56,7 +63,7 @@ export function ProductsProvider({ children }) {
   const [state, dispatch] = useReducer(productsReducer, initialState);
   const initialized = useRef(false);
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (sortOrder = 'asc') => {
     dispatch({ type: ACTIONS.FETCH_START });
     try {
       const userData = localStorage.getItem('user');
@@ -65,7 +72,7 @@ export function ProductsProvider({ children }) {
         ? { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
         : { 'Content-Type': 'application/json' };
 
-      const response = await fetch('https://fakestoreapi.com/products', { headers });
+      const response = await fetch(`https://fakestoreapi.com/products?sort=${sortOrder}`, { headers });
       if (!response.ok) throw new Error('Failed to fetch products');
       const data = await response.json();
       dispatch({ type: ACTIONS.FETCH_SUCCESS, payload: data });
@@ -85,16 +92,20 @@ export function ProductsProvider({ children }) {
     }
   };
 
-  const fetchProductsByCategory = async (category) => {
+  const fetchProductsByCategory = async (category, sortOrder = 'asc') => {
     dispatch({ type: ACTIONS.FETCH_START });
     try {
-      const response = await fetch(`https://fakestoreapi.com/products/category/${category}`);
+      const response = await fetch(`https://fakestoreapi.com/products/category/${category}?sort=${sortOrder}`);
       if (!response.ok) throw new Error('Failed to fetch products');
       const data = await response.json();
       dispatch({ type: ACTIONS.FETCH_SUCCESS, payload: data });
     } catch (error) {
       dispatch({ type: ACTIONS.FETCH_ERROR, payload: error.message });
     }
+  };
+
+  const setSortOrder = (order) => {
+    dispatch({ type: ACTIONS.SET_SORT_ORDER, payload: order });
   };
 
   useEffect(() => {
@@ -106,7 +117,7 @@ export function ProductsProvider({ children }) {
   }, []);
 
   return (
-    <ProductsContext.Provider value={{ ...state, fetchProducts, fetchProductsByCategory }}>
+    <ProductsContext.Provider value={{ ...state, fetchProducts, fetchProductsByCategory, setSortOrder }}>
       <ProductsDispatchContext.Provider value={dispatch}>
         {children}
       </ProductsDispatchContext.Provider>
@@ -129,3 +140,4 @@ export function useProductsDispatch() {
   }
   return context;
 }
+
