@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProducts, useProductsDispatch } from '../contexts/ProductsContext';
-import { ChevronLeft, ChevronRight, Filter, ArrowUpDown } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 
 const HomePage = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -33,7 +33,7 @@ const HomePage = () => {
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
   const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
 
-  const handleCategoryChange = async (category) => {
+  const handleCategoryChange = (category) => {
     if (selectedCategory === category) {
       dispatch({ type: 'SET_SELECTED_CATEGORY', payload: null });
     } else {
@@ -110,26 +110,17 @@ const HomePage = () => {
               </div>
               <div className="mt-8">
                 <h3 className="font-semibold mb-4 text-lg">Sort Order</h3>
-                <div className="space-y-3">
-                  <label className="flex items-center space-x-3 cursor-pointer">
-                    <input
-                      type="radio"
-                      checked={sortOrder === 'asc'}
-                      onChange={() => setSortOrder('asc')}
-                      className="text-blue-500 focus:ring-blue-500 h-5 w-5"
-                    />
-                    <span className="text-gray-700">Ascending</span>
-                  </label>
-                  <label className="flex items-center space-x-3 cursor-pointer">
-                    <input
-                      type="radio"
-                      checked={sortOrder === 'desc'}
-                      onChange={() => setSortOrder('desc')}
-                      className="text-blue-500 focus:ring-blue-500 h-5 w-5"
-                    />
-                    <span className="text-gray-700">Descending</span>
-                  </label>
-                </div>
+                <select
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value)}
+                  disabled={status === 'loading'}
+                  className={`w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    status === 'loading' ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-white text-gray-700'
+                  }`}
+                >
+                  <option value="asc">Ascending</option>
+                  <option value="desc">Descending</option>
+                </select>
               </div>
             </div>
           </div>
@@ -207,4 +198,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-
