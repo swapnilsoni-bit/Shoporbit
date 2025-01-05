@@ -69,7 +69,6 @@ const CartPage = () => {
                     <div className="flex justify-between">
                       <div>
                         <h3 className="font-medium">{item.product.title}</h3>
-                        <p className="text-sm text-gray-500">Size: {item.size}</p>
                         <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
                         <p className="text-sm text-gray-600">by Vendor Name</p>
                       </div>

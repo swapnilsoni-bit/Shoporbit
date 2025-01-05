@@ -24,7 +24,7 @@ function ProductDetailsPage() {
   if (status === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
   }
@@ -60,16 +60,16 @@ function ProductDetailsPage() {
   };
 
   const handleWishlistToggle = () => {
-    const userData = localStorage.getItem('user');  // Get user data from localStorage
-    const token = userData ? JSON.parse(userData).token : null; // Parse and extract token
+    const userData = localStorage.getItem('user');  
+    const token = userData ? JSON.parse(userData).token : null; 
   
     if (!token) {
-      navigate('/login');  // Redirect to login page if no token
+      navigate('/login');  
     } else {
       if (isInWishlist(product.id)) {
-        removeFromWishlist(product.id);  // Remove from wishlist if already in it
+        removeFromWishlist(product.id);  
       } else {
-        addToWishlist(product);  // Add to wishlist if not already in it
+        addToWishlist(product);  
       }
     }
   };
