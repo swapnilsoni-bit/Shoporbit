@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 
 function LoginPage() {
   const { login, loading, error, user, logout } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate(); // Initialize the navigate function
+  const navigate = useNavigate(); 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = await login(username, password); // Check if login is successful
+    const success = await login(username, password); 
 
     if (success) {
-      // If login is successful, navigate to the home page
+     
       navigate('/');
     }
   };

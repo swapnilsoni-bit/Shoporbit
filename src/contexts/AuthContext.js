@@ -9,7 +9,7 @@ export function AuthProvider({ children }) {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Retrieve the token from localStorage when the app is initialized
+ 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
@@ -39,26 +39,26 @@ export function AuthProvider({ children }) {
 
       const data = await response.json();
       
-      // Assuming the response contains a token and the username
+     
       const userData = { username, token: data.token };
 
-      // Store user in localStorage
+     
       localStorage.setItem('user', JSON.stringify(userData));
 
-      // Update the user state
+     
       setUser(userData);
 
-      return true; // Return success
+      return true; 
     } catch (err) {
       setError(err.message);
-      return false; // Return failure
+      return false; 
     } finally {
       setLoading(false);
     }
   };
 
   const logout = () => {
-    // Remove the user data from localStorage and reset the state
+    
     localStorage.removeItem('user');
     setUser(null);
     setError(null);

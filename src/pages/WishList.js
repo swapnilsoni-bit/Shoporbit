@@ -21,7 +21,7 @@ function WishListPage() {
 
       setTimeout(() => {
         setShowNotification(false);
-        navigate('/cart'); // Navigate to cart page after adding items
+        navigate('/cart'); 
       }, 1500);
     }
   };

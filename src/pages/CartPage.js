@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useCart } from '../contexts/CartContext';
 import { Trash2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
+import { useNavigate } from 'react-router-dom'; 
 
 const CartPage = () => {
   const { cart, removeFromCart, calculateSubtotal, emptyCart } = useCart();
@@ -9,7 +9,7 @@ const CartPage = () => {
   const shippingCost = 10;
   const subtotal = calculateSubtotal();
   const total = subtotal + shippingCost;
-  const navigate = useNavigate();  // Initialize useNavigate hook
+  const navigate = useNavigate();  
 
   const handleEmptyCart = () => {
     setShowConfirmModal(true);
@@ -20,16 +20,16 @@ const CartPage = () => {
     setShowConfirmModal(false);
   };
 
-  // Handle "Continue to Checkout" button click
+ 
   const handleCheckout = () => {
     const userData = localStorage.getItem('user');  
     const token = userData ? JSON.parse(userData).token : null;
 
     if (!token) {
-      // If no token is found, redirect to login page
+     
       navigate('/login');
     } else {
-      // Proceed to checkout (you can add your checkout logic here)
+    
       console.log('Proceeding to checkout');
     }
   };
@@ -104,7 +104,7 @@ const CartPage = () => {
                   </div>
                 </div>
                 <button
-                  onClick={handleCheckout}  // Use the new handleCheckout function
+                  onClick={handleCheckout} 
                   className="w-full bg-black text-white py-3 rounded-full shadow-2xl hover:bg-gray-600 transition-all"
                 >
                   Continue to Checkout

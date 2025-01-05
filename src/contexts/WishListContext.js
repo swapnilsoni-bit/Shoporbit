@@ -1,4 +1,4 @@
-// WishListContext.js
+
 import React, { createContext, useState, useContext, useCallback } from 'react';
 import { useCart } from './CartContext';
 

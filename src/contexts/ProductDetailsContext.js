@@ -36,7 +36,7 @@ export function ProductDetailsProvider({ children }) {
   const fetchProductDetails = useCallback(async (productId) => {
     dispatch({ type: ACTIONS.FETCH_START });
     try {
-      // Check for token in localStorage
+     
       const userData = localStorage.getItem('user');
       const token = userData ? JSON.parse(userData).token : null;
 
