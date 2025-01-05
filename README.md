@@ -31,7 +31,16 @@ ShopOrbit is a sleek and intuitive eCommerce platform that allows users to brows
 ### 5. **Login User**
 - **URL**: `https://fakestoreapi.com/auth/login`
 - **Method**: `POST`
-- **Description**: Authenticates a user for login using credentials.
+- **Description**: Authenticates a user for login using credentials. 
+--username--
+mor_2314 
+--password--
+83r5^_
+
+--username--
+johnd
+--password--
+m38rmF$ 
 
 ---
 
