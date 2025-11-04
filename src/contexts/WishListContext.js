@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useCallback } from 'react';
 import { useCart } from './CartContext';
 
@@ -9,8 +8,8 @@ export const WishlistProvider = ({ children }) => {
   const { addToCart } = useCart();
 
   const addToWishlist = useCallback((product) => {
-    setWishlist(prevWishlist => {
-      if (prevWishlist.find(item => item.id === product.id)) {
+    setWishlist((prevWishlist) => {
+      if (prevWishlist.find((item) => item.id === product.id)) {
         return prevWishlist;
       }
       return [...prevWishlist, product];
@@ -18,15 +17,13 @@ export const WishlistProvider = ({ children }) => {
   }, []);
 
   const removeFromWishlist = useCallback((productId) => {
-    setWishlist(prevWishlist => 
-      prevWishlist.filter(item => item.id !== productId)
-    );
+    setWishlist((prevWishlist) => prevWishlist.filter((item) => item.id !== productId));
   }, []);
 
   const addAllToCart = useCallback(() => {
     const addItemsSequentially = async () => {
       for (const product of wishlist) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
         addToCart(product, 1);
       }
       setWishlist([]);
@@ -35,8 +32,12 @@ export const WishlistProvider = ({ children }) => {
   }, [wishlist, addToCart]);
 
   const isInWishlist = useCallback((productId) => {
-    return wishlist.some(item => item.id === productId);
+    return wishlist.some((item) => item.id === productId);
   }, [wishlist]);
+
+  const clearWishlist = useCallback(() => {
+    setWishlist([]);
+  }, []);
 
   return (
     <WishListContext.Provider
@@ -46,6 +47,7 @@ export const WishlistProvider = ({ children }) => {
         removeFromWishlist,
         addAllToCart,
         isInWishlist,
+        clearWishlist,
       }}
     >
       {children}
@@ -53,4 +55,10 @@ export const WishlistProvider = ({ children }) => {
   );
 };
 
-export const useWishlist = () => useContext(WishListContext);
+export const useWishlist = () => {
+  const context = useContext(WishListContext);
+  if (!context) {
+    throw new Error('useWishlist must be used within WishlistProvider');
+  }
+  return context;
+};
