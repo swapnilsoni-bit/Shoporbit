@@ -6,7 +6,7 @@ import ProductComparison from '../components/ProductComparison';
 
 const ComparisonPage = () => {
   const navigate = useNavigate();
-  const { comparisonList, clearComparison, removeFromComparison } = useComparison();
+  const { comparisonList, clearComparison } = useComparison();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">

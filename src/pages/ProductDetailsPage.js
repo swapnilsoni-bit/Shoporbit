@@ -5,7 +5,7 @@ import { useWishlist } from '../contexts/WishListContext';
 import { useComparison } from '../contexts/ComparisonContext';
 import { 
   Heart, ShoppingCart, Truck, RotateCcw, Shield, 
-  ArrowLeft, BarChart3, Star, LoaderCircle, X 
+  ArrowLeft, BarChart3, Star, LoaderCircle
 } from 'lucide-react';
 import fakeStoreAPI from '../utils/fakeStoreAPI';
 import Toast from '../components/Toast';
@@ -13,8 +13,6 @@ import RatingDisplay from '../components/RatingDisplay';
 import ReviewForm from '../components/ReviewForm';
 import ReviewSection from '../components/ReviewSection';
 import RelatedProducts from '../components/RelatedProducts';
-import StockBadge from '../components/StockBadge';
-
 
 function ProductDetailsPage() {
   const { productId } = useParams();
@@ -139,7 +137,7 @@ function ProductDetailsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Product Details Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-          {/* Product Image - HEIGHT KEPT SAME */}
+          {/* Product Image */}
           <div className="flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl p-8 min-h-[400px] shadow-lg border border-slate-300">
             <img
               src={product.image}
@@ -151,7 +149,7 @@ function ProductDetailsPage() {
           {/* Product Details */}
           <div className="flex flex-col justify-between">
             <div>
-              {/* Title - TEXT SIZE REDUCED */}
+              {/* Title */}
               <h1 className="text-lg md:text-xl lg:text-2xl font-semibold text-slate-900 mb-3 leading-snug">
                 {product.title}
               </h1>

@@ -30,11 +30,9 @@ const Header = () => {
   const [showSidebar, setShowSidebar] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
 
-  // Detect screen size
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 1024);
-      // Close sidebar when going to desktop
       if (window.innerWidth >= 1024 && showSidebar) {
         setShowSidebar(false);
       }
@@ -54,24 +52,20 @@ const Header = () => {
     window.location.href = '/login';
   };
 
-  // Close sidebar on route change
   useEffect(() => {
     setShowSidebar(false);
   }, [location]);
 
   if (!isAuthenticated) {
-    return null; // Don't show header on login page
+    return null;
   }
 
   return (
     <>
-      {/* Header */}
       <header className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg sticky top-0 z-50">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Left Side */}
             <div className="flex items-center gap-4">
-              {/* Hamburger Button - Only on Mobile */}
               {isMobile && (
                 <button
                   onClick={() => setShowSidebar(!showSidebar)}
@@ -85,7 +79,6 @@ const Header = () => {
                 </button>
               )}
 
-              {/* Logo - Replaced with Favicon */}
               <Link to="/" className="flex items-center gap-2 hover:opacity-90 transition">
                 <img 
                   src="/favicon.ico" 
@@ -96,7 +89,6 @@ const Header = () => {
               </Link>
             </div>
 
-            {/* Desktop Navigation */}
             <nav className={`${isMobile ? 'hidden' : 'flex'} items-center gap-8`}>
               <Link to="/" className="hover:text-blue-100 font-medium transition">
                 Shop
@@ -109,9 +101,7 @@ const Header = () => {
               </Link>
             </nav>
 
-            {/* Right Side Icons */}
             <div className="flex items-center gap-6">
-              {/* Comparison */}
               <Link
                 to="/comparison"
                 className="relative p-2 hover:bg-white/10 rounded-lg transition"
@@ -125,7 +115,6 @@ const Header = () => {
                 )}
               </Link>
 
-              {/* Wishlist */}
               <Link
                 to="/wishlist"
                 className="relative p-2 hover:bg-white/10 rounded-lg transition"
@@ -139,7 +128,6 @@ const Header = () => {
                 )}
               </Link>
 
-              {/* Cart */}
               <Link
                 to="/cart"
                 className="relative p-2 hover:bg-white/10 rounded-lg transition"
@@ -153,7 +141,6 @@ const Header = () => {
                 )}
               </Link>
 
-              {/* User Info - Desktop */}
               {!isMobile && user && (
                 <div className="flex items-center gap-2 pl-6 border-l border-white/30">
                   <User className="w-5 h-5" />
@@ -161,7 +148,6 @@ const Header = () => {
                 </div>
               )}
 
-              {/* Logout Button - Desktop */}
               {!isMobile && user && (
                 <button
                   onClick={handleLogout}
@@ -176,19 +162,15 @@ const Header = () => {
         </div>
       </header>
 
-      {/* Mobile Sidebar Drawer */}
       {showSidebar && isMobile && (
         <div className="fixed inset-0 z-[100] lg:hidden">
-          {/* Backdrop */}
           <div
             className="fixed inset-0 bg-black/30 backdrop-blur-sm"
             onClick={() => setShowSidebar(false)}
           />
 
-          {/* Sidebar */}
           <div className="fixed left-0 top-0 bottom-0 w-72 max-w-full bg-white shadow-xl overflow-y-auto">
             <div className="p-6 space-y-6">
-              {/* Header with Logo */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                   <img 
@@ -196,7 +178,7 @@ const Header = () => {
                     alt="ShopOrbit Logo" 
                     className="h-8 w-8 rounded-lg object-cover"
                   />
-                  <h3 className="text-lg font-bold text-slate-900">Menu</h3>
+                  <h3 className="text-lg font-bold text-slate-900">ShopOrbit</h3>
                 </div>
                 <button
                   onClick={() => setShowSidebar(false)}
@@ -206,7 +188,6 @@ const Header = () => {
                 </button>
               </div>
 
-              {/* Navigation Links */}
               <div className="space-y-3">
                 <Link
                   to="/"
@@ -260,7 +241,6 @@ const Header = () => {
                 </Link>
               </div>
 
-              {/* User Info */}
               {user && (
                 <div className="p-4 bg-slate-50 rounded-lg">
                   <div className="flex items-center gap-3 mb-4">
@@ -292,7 +272,6 @@ const Footer = () => {
     <footer className="bg-slate-900 text-white mt-16">
       <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-          {/* About */}
           <div>
             <div className="flex items-center gap-2 mb-4">
               <img 
@@ -307,7 +286,6 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Quick Links */}
           <div>
             <h4 className="font-bold text-lg mb-4">Quick Links</h4>
             <ul className="space-y-2 text-slate-400 text-sm">
@@ -329,46 +307,62 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Support */}
           <div>
             <h4 className="font-bold text-lg mb-4">Support</h4>
             <ul className="space-y-2 text-slate-400 text-sm">
               <li>
-                <a href="#" className="hover:text-white transition">
+                <button 
+                  type="button"
+                  className="hover:text-white transition text-left cursor-pointer"
+                >
                   Contact Us
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition">
+                <button 
+                  type="button"
+                  className="hover:text-white transition text-left cursor-pointer"
+                >
                   FAQ
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition">
+                <button 
+                  type="button"
+                  className="hover:text-white transition text-left cursor-pointer"
+                >
                   Returns
-                </a>
+                </button>
               </li>
             </ul>
           </div>
 
-          {/* Follow */}
           <div>
             <h4 className="font-bold text-lg mb-4">Follow Us</h4>
             <ul className="space-y-2 text-slate-400 text-sm">
               <li>
-                <a href="#" className="hover:text-white transition">
+                <button 
+                  type="button"
+                  className="hover:text-white transition text-left cursor-pointer"
+                >
                   Facebook
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition">
+                <button 
+                  type="button"
+                  className="hover:text-white transition text-left cursor-pointer"
+                >
                   Twitter
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition">
+                <button 
+                  type="button"
+                  className="hover:text-white transition text-left cursor-pointer"
+                >
                   Instagram
-                </a>
+                </button>
               </li>
             </ul>
           </div>
@@ -381,7 +375,6 @@ const Footer = () => {
   );
 };
 
-// Protected Route
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
 
