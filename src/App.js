@@ -8,6 +8,7 @@ import { ComparisonProvider } from './contexts/ComparisonContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ShoppingCart, Heart, BarChart3, LogOut, User, Menu, X, Home } from 'lucide-react';
 
+
 // Pages
 import HomePage from './pages/HomePage';
 import ProductDetailsPage from './pages/ProductDetailsPage';
@@ -16,20 +17,23 @@ import WishListPage from './pages/WishListPage';
 import LoginPage from './pages/LoginPage';
 import ComparisonPage from './pages/ComparisonPage';
 
+
 // Hooks
 import { useCart } from './contexts/CartContext';
 import { useWishlist } from './contexts/WishListContext';
 import { useComparison } from './contexts/ComparisonContext';
+
 
 // ✅ Header Component with Guest Mode Support
 const Header = () => {
   const { cart } = useCart();
   const { wishlist } = useWishlist();
   const { getComparisonCount } = useComparison();
-  const { user, logout, isGuest } = useAuth(); // ✅ REMOVED: isAuthenticated
+  const { user, logout, isGuest } = useAuth();
   const location = useLocation();
   const [showSidebar, setShowSidebar] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
 
   useEffect(() => {
     const handleResize = () => {
@@ -39,13 +43,16 @@ const Header = () => {
       }
     };
 
+
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [showSidebar]);
 
+
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const wishlistCount = wishlist.length;
   const comparisonCount = getComparisonCount();
+
 
   const handleLogout = () => {
     logout();
@@ -53,19 +60,23 @@ const Header = () => {
     window.location.href = '/';
   };
 
+
   useEffect(() => {
     setShowSidebar(false);
   }, [location]);
 
-  // ✅ Hide header on login page
+
+  // Hide header on login page
   if (location.pathname === '/login') {
     return null;
   }
 
-  // ✅ Show header for both guests and authenticated users
+
+  // Show header for both guests and authenticated users
   if (!user && !isGuest) {
     return null;
   }
+
 
   return (
     <>
@@ -88,13 +99,18 @@ const Header = () => {
                 </button>
               )}
 
+
               <Link to="/" className="flex items-center gap-2 hover:opacity-90 transition">
-                <div className="h-10 w-10 rounded-lg shadow-lg bg-white flex items-center justify-center font-bold text-blue-600">
-                  SO
-                </div>
+                {/* ✅ FAVICON LOGO */}
+                <img 
+                  src="/favicon.ico" 
+                  alt="ShopOrbit Logo" 
+                  className="h-10 w-10 rounded-lg shadow-lg object-cover bg-white"
+                />
                 <span className="font-bold text-lg text-white hidden sm:inline">ShopOrbit</span>
               </Link>
             </div>
+
 
             {/* Desktop Navigation */}
             <nav className={`${isMobile ? 'hidden' : 'flex'} items-center gap-8`}>
@@ -110,6 +126,7 @@ const Header = () => {
                 </Link>
               )}
             </nav>
+
 
             {/* Right Icons & User Info */}
             <div className="flex items-center gap-6">
@@ -129,6 +146,7 @@ const Header = () => {
                 </Link>
               )}
 
+
               {/* Wishlist Icon */}
               <Link
                 to="/wishlist"
@@ -142,6 +160,7 @@ const Header = () => {
                   </span>
                 )}
               </Link>
+
 
               {/* Cart Icon (authenticated only) */}
               {!isGuest && (
@@ -159,12 +178,14 @@ const Header = () => {
                 </Link>
               )}
 
+
               {/* Guest Mode Badge */}
               {isGuest && (
                 <div className="flex items-center gap-2 px-3 py-1.5 bg-yellow-500/20 rounded-full border border-yellow-400">
                   <span className="text-xs font-bold">👤 Guest</span>
                 </div>
               )}
+
 
               {/* User Info & Logout (authenticated only) */}
               {!isGuest && user && (
@@ -175,6 +196,7 @@ const Header = () => {
                       <span className="font-semibold">{user.username || user.name}</span>
                     </div>
                   )}
+
 
                   {!isMobile && (
                     <button
@@ -187,6 +209,7 @@ const Header = () => {
                   )}
                 </>
               )}
+
 
               {/* Login Button for Guests */}
               {isGuest && (
@@ -203,6 +226,7 @@ const Header = () => {
         </div>
       </header>
 
+
       {/* Mobile Sidebar */}
       {showSidebar && isMobile && (
         <div className="fixed inset-0 z-[100] lg:hidden">
@@ -211,13 +235,17 @@ const Header = () => {
             onClick={() => setShowSidebar(false)}
           />
 
+
           <div className="fixed left-0 top-0 bottom-0 w-72 max-w-full bg-white shadow-xl overflow-y-auto">
             <div className="p-6 space-y-6">
+              {/* ✅ FAVICON LOGO IN SIDEBAR */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
-                    SO
-                  </div>
+                  <img 
+                    src="/favicon.ico" 
+                    alt="ShopOrbit Logo" 
+                    className="h-8 w-8 rounded-lg object-cover"
+                  />
                   <h3 className="text-lg font-bold text-slate-900">ShopOrbit</h3>
                 </div>
                 <button
@@ -228,6 +256,7 @@ const Header = () => {
                 </button>
               </div>
 
+
               {/* Guest Mode Notice */}
               {isGuest && (
                 <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 text-sm font-semibold flex items-center gap-2">
@@ -235,6 +264,7 @@ const Header = () => {
                   <span>Browsing as Guest</span>
                 </div>
               )}
+
 
               <div className="space-y-3">
                 <Link
@@ -245,6 +275,7 @@ const Header = () => {
                   <Home className="w-5 h-5" />
                   Home
                 </Link>
+
 
                 <Link
                   to="/wishlist"
@@ -259,6 +290,7 @@ const Header = () => {
                     </span>
                   )}
                 </Link>
+
 
                 {/* Comparison (authenticated only) */}
                 {!isGuest && (
@@ -277,6 +309,7 @@ const Header = () => {
                   </Link>
                 )}
 
+
                 {/* Cart (authenticated only) */}
                 {!isGuest && (
                   <Link
@@ -294,6 +327,7 @@ const Header = () => {
                   </Link>
                 )}
               </div>
+
 
               {/* User Profile or Login */}
               {!isGuest && user && (
@@ -315,6 +349,7 @@ const Header = () => {
                 </div>
               )}
 
+
               {/* Login for Guests */}
               {isGuest && (
                 <Link
@@ -333,14 +368,17 @@ const Header = () => {
   );
 };
 
+
 // ✅ Footer Component
 const Footer = () => {
   const location = useLocation();
+
 
   // Hide footer on login page
   if (location.pathname === '/login') {
     return null;
   }
+
 
   return (
     <footer className="bg-gradient-to-r from-slate-900 to-slate-800 text-white mt-16 border-t border-slate-700">
@@ -348,16 +386,20 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           {/* About */}
           <div>
+            {/* ✅ FAVICON LOGO IN FOOTER */}
             <div className="flex items-center gap-2 mb-4">
-              <div className="h-10 w-10 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">
-                SO
-              </div>
+              <img 
+                src="/favicon.ico" 
+                alt="ShopOrbit Logo" 
+                className="h-10 w-10 rounded-lg object-cover"
+              />
               <span className="font-bold text-lg">ShopOrbit</span>
             </div>
             <p className="text-slate-400 text-sm leading-relaxed">
               Premium e-commerce platform with advanced filtering and product comparison.
             </p>
           </div>
+
 
           {/* Quick Links */}
           <div>
@@ -380,6 +422,7 @@ const Footer = () => {
               </li>
             </ul>
           </div>
+
 
           {/* Support */}
           <div>
@@ -411,6 +454,7 @@ const Footer = () => {
               </li>
             </ul>
           </div>
+
 
           {/* Follow */}
           <div>
@@ -444,6 +488,7 @@ const Footer = () => {
           </div>
         </div>
 
+
         {/* Divider */}
         <div className="border-t border-slate-700 pt-8">
           <p className="text-center text-slate-400 text-sm">
@@ -461,9 +506,11 @@ const Footer = () => {
   );
 };
 
+
 // ✅ Protected Route Component
 const ProtectedRoute = ({ children, requireAuth = true }) => {
-  const { isGuest, loading } = useAuth(); // ✅ REMOVED: isAuthenticated
+  const { isGuest, loading } = useAuth();
+
 
   if (loading) {
     return (
@@ -476,13 +523,16 @@ const ProtectedRoute = ({ children, requireAuth = true }) => {
     );
   }
 
+
   // If route requires auth and user is guest, redirect
   if (requireAuth && isGuest) {
     return <Navigate to="/login" replace />;
   }
 
+
   return children;
 };
+
 
 // ✅ Main App Content
 function AppContent() {
@@ -490,15 +540,18 @@ function AppContent() {
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
 
+
       <main className="flex-1">
         <Routes>
           {/* Public Route - Login (no navbar/footer) */}
           <Route path="/login" element={<LoginPage />} />
 
+
           {/* Public Routes - Guests can browse */}
           <Route path="/" element={<HomePage />} />
           <Route path="/product/:productId" element={<ProductDetailsPage />} />
           <Route path="/wishlist" element={<WishListPage />} />
+
 
           {/* Protected Routes - Login required */}
           <Route
@@ -518,15 +571,18 @@ function AppContent() {
             }
           />
 
+
           {/* Catch all - redirect to home */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
 
+
       <Footer />
     </div>
   );
 }
+
 
 // ✅ Main App with Providers
 function App() {
@@ -548,5 +604,6 @@ function App() {
     </Router>
   );
 }
+
 
 export default App;
