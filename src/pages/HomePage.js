@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Filter, X, Zap, Search, LogIn, ShoppingCart } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  X,
+  Zap,
+  Search,
+  LogIn,
+  ShoppingCart
+} from 'lucide-react';
 import fakeStoreAPI from '../utils/fakeStoreAPI';
 import PriceRangeFilter from '../components/PriceRangeFilter';
 import SortDropdown from '../components/SortDropdown';
@@ -26,8 +35,8 @@ const HomePage = () => {
   const navigate = useNavigate();
   const { filters, resetFilters, hasActiveFilters, updateFilter } = useFilter();
   const { applyFilters } = useFilters();
-  const { isAuthenticated, isGuest } = useAuth(); // ✅ NEW - Get auth state
-  const { addToCart } = useCart(); // ✅ NEW - Get cart function
+  const { isGuest } = useAuth(); // ✅ REMOVED: isAuthenticated (unused)
+  const { addToCart } = useCart();
 
   // Fetch data on mount
   useEffect(() => {
@@ -36,7 +45,7 @@ const HomePage = () => {
         setLoading(true);
         const [productsData, categoriesData] = await Promise.all([
           fakeStoreAPI.getAllProducts(APP_CONFIG.PRODUCTS_LIMIT),
-          fakeStoreAPI.getCategories(),
+          fakeStoreAPI.getCategories()
         ]);
         setProducts(productsData);
         setCategories(categoriesData || []);
@@ -103,20 +112,20 @@ const HomePage = () => {
     setShowMobileFilter(false);
   };
 
-  // ✅ NEW - Handle Add to Cart (with guest check)
+  // Handle Add to Cart (with guest check)
   const handleAddToCart = (product) => {
     if (isGuest) {
-      setToast({ 
-        message: '🔐 Login required to add items to cart', 
-        type: 'warning' 
+      setToast({
+        message: '🔐 Login required to add items to cart',
+        type: 'warning'
       });
       setTimeout(() => navigate('/login'), 1500);
       return;
     }
     addToCart(product, 1);
-    setToast({ 
-      message: `✓ ${product.title} added to cart!`, 
-      type: 'success' 
+    setToast({
+      message: `✓ ${product.title} added to cart!`,
+      type: 'success'
     });
   };
 
@@ -125,15 +134,24 @@ const HomePage = () => {
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 text-white">
         <div className="w-full px-4 sm:px-6 lg:px-8 py-10">
-          <h1 className="text-4xl md:text-5xl font-bold mb-2">Discover Amazing Products</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-2">
+            Discover Amazing Products
+          </h1>
           <p className="text-blue-100 text-lg max-w-2xl">
-            Shop our exclusive collection with advanced filters, search, and smart sorting features
+            Shop our exclusive collection with advanced filters, search, and
+            smart sorting features
           </p>
-          {/* ✅ NEW - Guest Mode Notice */}
+          {/* Guest Mode Notice */}
           {isGuest && (
             <div className="mt-4 p-3 bg-yellow-400 bg-opacity-20 border border-yellow-300 rounded-lg inline-block">
               <p className="text-yellow-100 font-semibold flex items-center gap-2">
-                👀 Browsing as Guest - <button onClick={() => navigate('/login')} className="underline hover:no-underline">Login to Shop</button>
+                👀 Browsing as Guest -{' '}
+                <button
+                  onClick={() => navigate('/login')}
+                  className="underline hover:no-underline"
+                >
+                  Login to Shop
+                </button>
               </p>
             </div>
           )}
@@ -210,7 +228,9 @@ const HomePage = () => {
               <div className="p-6 space-y-6">
                 {/* Header */}
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-slate-900">Price Filter</h3>
+                  <h3 className="text-lg font-bold text-slate-900">
+                    Price Filter
+                  </h3>
                   <button
                     onClick={() => setShowMobileFilter(false)}
                     className="p-2 hover:bg-slate-100 rounded-lg transition"
@@ -220,7 +240,9 @@ const HomePage = () => {
                 </div>
 
                 {/* Price Filter */}
-                <PriceRangeFilter onPriceChange={() => setCurrentPage(1)} />
+                <PriceRangeFilter
+                  onPriceChange={() => setCurrentPage(1)}
+                />
 
                 {/* Clear Filters */}
                 {hasActiveFilters() && (
@@ -241,13 +263,19 @@ const HomePage = () => {
                   <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
                     <p className="font-medium">Active filters:</p>
                     {filters.category && (
-                      <p className="text-xs mt-1">📁 Category: {filters.category}</p>
+                      <p className="text-xs mt-1">
+                        📁 Category: {filters.category}
+                      </p>
                     )}
                     {(filters.minPrice > 0 || filters.maxPrice < 1000) && (
-                      <p className="text-xs mt-1">💰 Price: ${filters.minPrice} - ${filters.maxPrice}</p>
+                      <p className="text-xs mt-1">
+                        💰 Price: ${filters.minPrice} - ${filters.maxPrice}
+                      </p>
                     )}
                     {filters.searchQuery && (
-                      <p className="text-xs mt-1">🔍 Search: "{filters.searchQuery}"</p>
+                      <p className="text-xs mt-1">
+                        🔍 Search: "{filters.searchQuery}"
+                      </p>
                     )}
                   </div>
                 )}
@@ -262,7 +290,9 @@ const HomePage = () => {
           <div className="hidden 2xl:block 2xl:col-span-1">
             <div className="sticky top-16 bg-white rounded-xl shadow-lg border border-slate-200 p-4">
               {/* Price Filter */}
-              <PriceRangeFilter onPriceChange={() => setCurrentPage(1)} />
+              <PriceRangeFilter
+                onPriceChange={() => setCurrentPage(1)}
+              />
 
               {/* Clear Filters */}
               {hasActiveFilters() && (
@@ -280,13 +310,19 @@ const HomePage = () => {
                 <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700 mt-4">
                   <p className="font-medium">Active filters:</p>
                   {filters.category && (
-                    <p className="text-xs mt-1">📁 Category: {filters.category}</p>
+                    <p className="text-xs mt-1">
+                      📁 Category: {filters.category}
+                    </p>
                   )}
                   {(filters.minPrice > 0 || filters.maxPrice < 1000) && (
-                    <p className="text-xs mt-1">💰 Price: ${filters.minPrice} - ${filters.maxPrice}</p>
+                    <p className="text-xs mt-1">
+                      💰 Price: ${filters.minPrice} - ${filters.maxPrice}
+                    </p>
                   )}
                   {filters.searchQuery && (
-                    <p className="text-xs mt-1">🔍 Search: "{filters.searchQuery}"</p>
+                    <p className="text-xs mt-1">
+                      🔍 Search: "{filters.searchQuery}"
+                    </p>
                   )}
                 </div>
               )}
@@ -300,14 +336,19 @@ const HomePage = () => {
               <div className="flex items-center gap-3">
                 {/* Filter Button - ONLY SHOW ON TABLET AND MOBILE */}
                 <button
-                  onClick={() => setShowMobileFilter(!showMobileFilter)}
+                  onClick={() =>
+                    setShowMobileFilter(!showMobileFilter)
+                  }
                   className="2xl:hidden px-4 py-2.5 bg-blue-600 text-white rounded-lg font-semibold flex items-center gap-2 hover:bg-blue-700 transition"
                 >
                   <Filter className="w-4 h-4" />
                   Price Filter
                 </button>
                 <p className="text-slate-700 font-semibold text-sm sm:text-base">
-                  <span className="text-blue-600 font-bold">{filteredProducts.length}</span> products
+                  <span className="text-blue-600 font-bold">
+                    {filteredProducts.length}
+                  </span>{' '}
+                  products
                   {filters.category && ` in ${filters.category}`}
                   {searchInput && ` for "${searchInput}"`}
                 </p>
@@ -320,7 +361,9 @@ const HomePage = () => {
               <div className="flex items-center justify-center py-20">
                 <div className="space-y-4 text-center">
                   <div className="w-14 h-14 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin mx-auto"></div>
-                  <p className="text-slate-600 font-medium">Loading products...</p>
+                  <p className="text-slate-600 font-medium">
+                    Loading products...
+                  </p>
                 </div>
               </div>
             ) : error ? (
@@ -337,7 +380,7 @@ const HomePage = () => {
                       className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform hover:translate-y-[-6px] border border-slate-100"
                     >
                       {/* Product Image - Clickable */}
-                      <div 
+                      <div
                         onClick={() => handleProductClick(product)}
                         className="relative h-64 bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden flex items-center justify-center cursor-pointer"
                       >
@@ -355,7 +398,7 @@ const HomePage = () => {
                       {/* Product Info */}
                       <div className="p-5">
                         {/* Title - Clickable */}
-                        <h3 
+                        <h3
                           onClick={() => handleProductClick(product)}
                           className="font-bold text-slate-900 text-base line-clamp-2 mb-3 group-hover:text-blue-600 transition-colors cursor-pointer"
                         >
@@ -374,9 +417,11 @@ const HomePage = () => {
 
                         {/* Stock */}
                         <div className="mb-4">
-                          <StockBadge 
-                            inStock={true} 
-                            stockCount={Math.floor(Math.random() * 50) + 5} 
+                          <StockBadge
+                            inStock={true}
+                            stockCount={
+                              Math.floor(Math.random() * 50) + 5
+                            }
                           />
                         </div>
 
@@ -390,15 +435,19 @@ const HomePage = () => {
                           </span>
                         </div>
 
-                        {/* ✅ NEW - Add to Cart / Login Button */}
+                        {/* Add to Cart / Login Button */}
                         {isGuest ? (
                           <button
                             onClick={() => {
-                              setToast({ 
-                                message: '🔐 Login required to add items to cart', 
-                                type: 'warning' 
+                              setToast({
+                                message:
+                                  '🔐 Login required to add items to cart',
+                                type: 'warning'
                               });
-                              setTimeout(() => navigate('/login'), 1500);
+                              setTimeout(
+                                () => navigate('/login'),
+                                1500
+                              );
                             }}
                             className="w-full px-4 py-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-bold transition-all flex items-center justify-center gap-2 transform hover:scale-105"
                           >
@@ -407,7 +456,9 @@ const HomePage = () => {
                           </button>
                         ) : (
                           <button
-                            onClick={() => handleAddToCart(product)}
+                            onClick={() =>
+                              handleAddToCart(product)
+                            }
                             className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition-all flex items-center justify-center gap-2 transform hover:scale-105"
                           >
                             <ShoppingCart className="w-5 h-5" />
@@ -423,7 +474,11 @@ const HomePage = () => {
                 {totalPages > 1 && (
                   <div className="flex items-center justify-center gap-2 mt-10 flex-wrap">
                     <button
-                      onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                      onClick={() =>
+                        handlePageChange(
+                          Math.max(1, currentPage - 1)
+                        )
+                      }
                       disabled={currentPage === 1}
                       className="p-2 rounded-lg bg-slate-200 text-slate-600 hover:bg-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       title="Previous page"
@@ -435,7 +490,9 @@ const HomePage = () => {
                       {[...Array(totalPages)].map((_, i) => (
                         <button
                           key={i + 1}
-                          onClick={() => handlePageChange(i + 1)}
+                          onClick={() =>
+                            handlePageChange(i + 1)
+                          }
                           className={`w-10 h-10 rounded-lg font-semibold transition-all ${
                             currentPage === i + 1
                               ? 'bg-blue-600 text-white shadow-lg'
@@ -449,7 +506,11 @@ const HomePage = () => {
                     </div>
 
                     <button
-                      onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                      onClick={() =>
+                        handlePageChange(
+                          Math.min(totalPages, currentPage + 1)
+                        )
+                      }
                       disabled={currentPage === totalPages}
                       className="p-2 rounded-lg bg-slate-200 text-slate-600 hover:bg-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       title="Next page"
@@ -462,8 +523,12 @@ const HomePage = () => {
             ) : (
               // No Results
               <div className="text-center py-20 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300">
-                <p className="text-slate-600 text-lg font-semibold mb-4">No products found</p>
-                <p className="text-slate-500 mb-6">Try adjusting your filters or search query</p>
+                <p className="text-slate-600 text-lg font-semibold mb-4">
+                  No products found
+                </p>
+                <p className="text-slate-500 mb-6">
+                  Try adjusting your filters or search query
+                </p>
                 <button
                   onClick={handleClearFilters}
                   className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"

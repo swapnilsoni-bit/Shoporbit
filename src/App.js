@@ -26,7 +26,7 @@ const Header = () => {
   const { cart } = useCart();
   const { wishlist } = useWishlist();
   const { getComparisonCount } = useComparison();
-  const { isAuthenticated, user, logout, isGuest } = useAuth();
+  const { user, logout, isGuest } = useAuth(); // ✅ REMOVED: isAuthenticated
   const location = useLocation();
   const [showSidebar, setShowSidebar] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
@@ -63,7 +63,7 @@ const Header = () => {
   }
 
   // ✅ Show header for both guests and authenticated users
-  if (!isAuthenticated && !isGuest) {
+  if (!user && !isGuest) {
     return null;
   }
 
@@ -463,7 +463,7 @@ const Footer = () => {
 
 // ✅ Protected Route Component
 const ProtectedRoute = ({ children, requireAuth = true }) => {
-  const { isAuthenticated, isGuest, loading } = useAuth();
+  const { isGuest, loading } = useAuth(); // ✅ REMOVED: isAuthenticated
 
   if (loading) {
     return (

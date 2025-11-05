@@ -1,29 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { useCart } from '../contexts/CartContext';
-import { Trash2, ArrowRight, AlertCircle, Truck, ShoppingCart, Lock } from 'lucide-react';
+import { Trash2, ArrowRight, AlertCircle, ShoppingCart, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Toast from '../components/Toast';
 
 const CartPage = () => {
   const navigate = useNavigate();
-  const { isGuest, isAuthenticated } = useAuth(); // ✅ NEW - Check auth status
+  const { isGuest } = useAuth(); // ✅ REMOVED: isAuthenticated (unused)
   const { cart, removeFromCart, calculateSubtotal, emptyCart } = useCart();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [toast, setToast] = useState(null);
 
-  // ✅ NEW - Redirect guests to login
+  // ✅ Redirect guests to login
   useEffect(() => {
     if (isGuest) {
-      setToast({ 
-        message: '🔐 Please login to access cart', 
-        type: 'warning' 
+      setToast({
+        message: '🔐 Please login to access cart',
+        type: 'warning'
       });
       setTimeout(() => navigate('/login'), 2000);
     }
   }, [isGuest, navigate]);
 
-  // ✅ NEW - If guest, show locked message
+  // ✅ If guest, show locked message
   if (isGuest) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex items-center justify-center px-4">
@@ -54,16 +54,16 @@ const CartPage = () => {
 
   const handleCheckout = () => {
     if (cart.length === 0) {
-      setToast({ 
-        message: 'Add items to cart before checkout', 
-        type: 'warning' 
+      setToast({
+        message: 'Add items to cart before checkout',
+        type: 'warning'
       });
       return;
     }
     console.log('Proceeding to checkout with', cart.length, 'items');
-    setToast({ 
-      message: '✓ Checkout process started!', 
-      type: 'success' 
+    setToast({
+      message: '✓ Checkout process started!',
+      type: 'success'
     });
     // Navigate to checkout page when ready
     // navigate('/checkout');
@@ -71,22 +71,22 @@ const CartPage = () => {
 
   const handleRemoveItem = (productId, productTitle) => {
     removeFromCart(productId);
-    setToast({ 
-      message: `🗑️ ${productTitle} removed from cart`, 
-      type: 'info' 
+    setToast({
+      message: `🗑️ ${productTitle} removed from cart`,
+      type: 'info'
     });
   };
 
   const handleConfirmEmptyCart = () => {
     emptyCart();
     setShowConfirmModal(false);
-    setToast({ 
-      message: '✓ Cart cleared successfully', 
-      type: 'success' 
+    setToast({
+      message: '✓ Cart cleared successfully',
+      type: 'success'
     });
   };
 
-  // ✅ NEW - Empty cart state
+  // ✅ Empty cart state
   if (cart.length === 0 && !showConfirmModal) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex items-center justify-center px-4">
@@ -154,7 +154,10 @@ const CartPage = () => {
 
                     {/* Product Details */}
                     <div className="flex-1 flex flex-col justify-between min-h-28">
-                      <div className="cursor-pointer" onClick={() => navigate(`/product/${item.product.id}`)}>
+                      <div
+                        className="cursor-pointer"
+                        onClick={() => navigate(`/product/${item.product.id}`)}
+                      >
                         <h3 className="font-bold text-slate-900 text-lg mb-1 line-clamp-2 hover:text-blue-600 transition-colors">
                           {item.product.title}
                         </h3>
@@ -171,7 +174,9 @@ const CartPage = () => {
                     <div className="flex flex-col items-end justify-between min-h-28 gap-4 w-full sm:w-auto">
                       {/* Delete Button */}
                       <button
-                        onClick={() => handleRemoveItem(item.product.id, item.product.title)}
+                        onClick={() =>
+                          handleRemoveItem(item.product.id, item.product.title)
+                        }
                         className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-all duration-200 transform hover:scale-110"
                         title="Remove from cart"
                         aria-label="Remove item"
@@ -194,7 +199,9 @@ const CartPage = () => {
                         <div className="text-center">
                           <p className="text-xs text-slate-600 font-medium">Total</p>
                           <p className="font-bold text-slate-900 text-lg">
-                            ${(parseFloat(item.product.price) * item.quantity).toFixed(2)}
+                            ${(
+                              parseFloat(item.product.price) * item.quantity
+                            ).toFixed(2)}
                           </p>
                         </div>
                       </div>
@@ -208,9 +215,12 @@ const CartPage = () => {
             <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg flex gap-3">
               <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-semibold text-blue-900 mb-1">Easy Returns & Support</h4>
+                <h4 className="font-semibold text-blue-900 mb-1">
+                  Easy Returns & Support
+                </h4>
                 <p className="text-blue-700 text-sm">
-                  30-day money-back guarantee on all items. Free shipping on orders over $50.
+                  30-day money-back guarantee on all items. Free shipping on
+                  orders over $50.
                 </p>
               </div>
             </div>
@@ -219,7 +229,9 @@ const CartPage = () => {
           {/* Order Summary Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-xl p-6 border border-slate-100 sticky top-32">
-              <h2 className="text-2xl font-bold text-slate-900 mb-6">Order Summary</h2>
+              <h2 className="text-2xl font-bold text-slate-900 mb-6">
+                Order Summary
+              </h2>
 
               {/* Breakdown */}
               <div className="space-y-4 mb-6 pb-6 border-b border-slate-200">
@@ -240,7 +252,9 @@ const CartPage = () => {
               {/* Total Amount */}
               <div className="flex justify-between items-center mb-8 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
                 <span className="text-lg font-bold text-slate-900">Total</span>
-                <span className="text-3xl font-bold text-blue-600">${total.toFixed(2)}</span>
+                <span className="text-3xl font-bold text-blue-600">
+                  ${total.toFixed(2)}
+                </span>
               </div>
 
               {/* Action Buttons */}
@@ -276,7 +290,9 @@ const CartPage = () => {
               <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg flex gap-3">
                 <div className="text-green-600 font-bold text-2xl">✓</div>
                 <div>
-                  <p className="text-sm text-green-700 font-semibold">Money-Back Guarantee</p>
+                  <p className="text-sm text-green-700 font-semibold">
+                    Money-Back Guarantee
+                  </p>
                   <p className="text-xs text-green-600">30-day return policy</p>
                 </div>
               </div>
@@ -296,7 +312,8 @@ const CartPage = () => {
               Clear Cart?
             </h2>
             <p className="text-slate-600 text-center mb-6">
-              Are you sure you want to remove all items from your cart? This action cannot be undone.
+              Are you sure you want to remove all items from your cart? This
+              action cannot be undone.
             </p>
             <div className="flex gap-3">
               <button
