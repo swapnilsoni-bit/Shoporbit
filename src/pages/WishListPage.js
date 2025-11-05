@@ -1,13 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useWishlist } from '../contexts/WishListContext';
 import { useNavigate } from 'react-router-dom';
-import { Heart, ShoppingCart, ArrowRight, Trash2 } from 'lucide-react';
+import { Heart, ShoppingCart, ArrowRight, Trash2, Lock } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import Toast from '../components/Toast';
 
 function WishListPage() {
-  const { wishlist, removeFromWishlist, addAllToCart } = useWishlist();
   const navigate = useNavigate();
+  const { isGuest } = useAuth(); // ✅ NEW - Get guest status
+  const { wishlist, removeFromWishlist, addAllToCart } = useWishlist();
   const [toast, setToast] = useState(null);
+
+  // ✅ NEW - Redirect guests
+  useEffect(() => {
+    if (isGuest) {
+      setToast({
+        message: '🔐 Login required to access wishlist',
+        type: 'warning',
+      });
+      setTimeout(() => navigate('/login'), 2000);
+    }
+  }, [isGuest, navigate]);
 
   const handleProductClick = (product) => {
     navigate(`/product/${product.id}`, {
@@ -15,10 +28,10 @@ function WishListPage() {
     });
   };
 
-  const handleRemove = (productId) => {
+  const handleRemove = (productId, productTitle) => {
     removeFromWishlist(productId);
     setToast({
-      message: 'Removed from wishlist',
+      message: `🗑️ ${productTitle} removed from wishlist`,
       type: 'info',
     });
   };
@@ -27,7 +40,7 @@ function WishListPage() {
     if (wishlist.length > 0) {
       addAllToCart();
       setToast({
-        message: `${wishlist.length} items added to cart!`,
+        message: `✓ ${wishlist.length} items added to cart!`,
         type: 'success',
       });
       setTimeout(() => {
@@ -36,26 +49,50 @@ function WishListPage() {
     }
   };
 
+  // ✅ NEW - Guest access denied
+  if (isGuest) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white flex items-center justify-center px-4 py-8">
+        <div className="text-center">
+          <div className="p-4 bg-red-100 rounded-full mx-auto mb-6 w-fit">
+            <Lock className="w-12 h-12 text-red-600" />
+          </div>
+          <h2 className="text-3xl font-bold text-slate-900 mb-2">Wishlist Access Locked</h2>
+          <p className="text-slate-600 mb-8 max-w-md mx-auto">
+            Please login to view and manage your wishlist.
+          </p>
+          <button
+            onClick={() => navigate('/login')}
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-pink-600 text-white px-8 py-4 rounded-lg font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+          >
+            Go to Login
+            <ArrowRight className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
       {/* Header Section */}
-      <div className="bg-white border-b border-slate-200 shadow-sm">
+      <div className="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-red-500 to-pink-600 rounded-lg">
+              <div className="p-2 bg-gradient-to-br from-red-500 to-pink-600 rounded-lg shadow-lg">
                 <Heart className="w-6 h-6 text-white fill-white" />
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-slate-900">My Wishlist</h1>
                 <p className="text-slate-600 text-sm mt-1">
-                  {wishlist.length} {wishlist.length === 1 ? 'item' : 'items'} saved
+                  {wishlist.length} {wishlist.length === 1 ? 'item' : 'items'} saved ❤️
                 </p>
               </div>
             </div>
             <button
               onClick={() => navigate('/')}
-              className="text-slate-600 hover:text-slate-900 text-sm font-medium transition-colors"
+              className="text-slate-600 hover:text-slate-900 font-medium transition-colors flex items-center gap-2"
             >
               ← Continue Shopping
             </button>
@@ -70,9 +107,7 @@ function WishListPage() {
             <div className="p-4 bg-slate-100 rounded-full mb-6">
               <Heart className="w-12 h-12 text-slate-400" />
             </div>
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">
-              Your wishlist is empty
-            </h2>
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">Your wishlist is empty</h2>
             <p className="text-slate-600 mb-8 text-center max-w-md">
               Start adding your favorite items to your wishlist and they'll appear here
             </p>
@@ -96,7 +131,7 @@ function WishListPage() {
                   {/* Product Image */}
                   <div
                     onClick={() => handleProductClick(product)}
-                    className="relative h-56 bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden cursor-pointer flex items-center justify-center"
+                    className="relative h-56 bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden cursor-pointer flex items-center justify-center group"
                   >
                     <img
                       src={product.image}
@@ -126,15 +161,16 @@ function WishListPage() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleProductClick(product)}
-                        className="flex-1 bg-gradient-to-r from-red-500 to-pink-600 text-white py-2 px-3 rounded-lg font-semibold text-sm hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
+                        className="flex-1 bg-gradient-to-r from-red-500 to-pink-600 text-white py-2 px-3 rounded-lg font-semibold text-sm hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 group"
                       >
-                        <ShoppingCart className="w-4 h-4" />
+                        <ShoppingCart className="w-4 h-4 group-hover:scale-110 transition-transform" />
                         View
                       </button>
                       <button
-                        onClick={() => handleRemove(product.id)}
-                        className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-red-100 hover:text-red-600 transition-all duration-200"
+                        onClick={() => handleRemove(product.id, product.title)}
+                        className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-red-100 hover:text-red-600 transition-all duration-200 transform hover:scale-110"
                         title="Remove from wishlist"
+                        aria-label="Remove from wishlist"
                       >
                         <Trash2 className="w-5 h-5" />
                       </button>
@@ -148,9 +184,9 @@ function WishListPage() {
             <div className="flex justify-center">
               <button
                 onClick={handleShopAll}
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-pink-600 text-white px-8 py-4 rounded-lg font-bold text-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-200 w-full sm:w-auto justify-center"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-pink-600 text-white px-8 py-4 rounded-lg font-bold text-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-200 w-full sm:w-auto justify-center group"
               >
-                <ShoppingCart className="w-5 h-5" />
+                <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 Add All to Cart
                 <ArrowRight className="w-5 h-5" />
               </button>

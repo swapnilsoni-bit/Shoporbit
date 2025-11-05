@@ -3,9 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishListContext';
 import { useComparison } from '../contexts/ComparisonContext';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   Heart, ShoppingCart, Truck, RotateCcw, Shield, 
-  ArrowLeft, BarChart3, Star, LoaderCircle
+  ArrowLeft, BarChart3, Star, LoaderCircle, LogIn
 } from 'lucide-react';
 import fakeStoreAPI from '../utils/fakeStoreAPI';
 import Toast from '../components/Toast';
@@ -17,6 +18,9 @@ import RelatedProducts from '../components/RelatedProducts';
 function ProductDetailsPage() {
   const { productId } = useParams();
   const navigate = useNavigate();
+
+  // ✅ NEW - Get auth state
+  const { isGuest } = useAuth();
 
   // Cart, Wishlist, Comparison Context
   const { addToCart } = useCart();
@@ -52,10 +56,21 @@ function ProductDetailsPage() {
     }
   }, [productId]);
 
-  // Cart Handlers
+  // ✅ NEW - Handle Add to Cart with guest check
   const handleAddToCart = () => {
+    if (isGuest) {
+      setToast({ 
+        message: '🔐 Login required to add items to cart', 
+        type: 'warning' 
+      });
+      setTimeout(() => navigate('/login'), 1500);
+      return;
+    }
     addToCart(product, quantity);
-    setToast({ message: `✓ Added ${quantity} item(s) to cart!`, type: 'success' });
+    setToast({ 
+      message: `✓ Added ${quantity} item(s) to cart!`, 
+      type: 'success' 
+    });
     setQuantity(1);
   };
 
@@ -70,8 +85,16 @@ function ProductDetailsPage() {
     }
   };
 
-  // Comparison Handlers
+  // ✅ NEW - Comparison handler with guest check
   const handleComparison = () => {
+    if (isGuest) {
+      setToast({ 
+        message: '🔐 Login required for comparison', 
+        type: 'warning' 
+      });
+      setTimeout(() => navigate('/login'), 1500);
+      return;
+    }
     if (isInComparison(product.id)) {
       removeFromComparison(product.id);
       setToast({ message: '✓ Removed from comparison', type: 'info' });
@@ -138,11 +161,11 @@ function ProductDetailsPage() {
         {/* Product Details Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
           {/* Product Image */}
-          <div className="flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl p-8 min-h-[400px] shadow-lg border border-slate-300">
+          <div className="flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl p-8 min-h-[400px] shadow-lg border border-slate-300 hover:shadow-xl transition-shadow">
             <img
               src={product.image}
               alt={product.title}
-              className="max-w-full max-h-96 object-contain drop-shadow-lg"
+              className="max-w-full max-h-96 object-contain drop-shadow-lg hover:scale-105 transition-transform duration-300"
             />
           </div>
 
@@ -169,9 +192,9 @@ function ProductDetailsPage() {
                 />
               </div>
 
-              {/* Price */}
-              <div className="mb-6 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200">
-                <div className="flex items-baseline gap-3 mb-3">
+              {/* Price Section */}
+              <div className="mb-6 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 hover:shadow-lg transition-shadow">
+                <div className="flex items-baseline gap-3 mb-3 flex-wrap">
                   <span className="text-5xl font-bold text-slate-900">
                     ${product.price.toFixed(2)}
                   </span>
@@ -192,7 +215,7 @@ function ProductDetailsPage() {
 
               {/* Description */}
               {product.description && (
-                <div className="mb-8 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                <div className="mb-8 p-4 bg-slate-50 rounded-lg border border-slate-200 hover:border-slate-300 transition-colors">
                   <h3 className="text-lg font-bold text-slate-900 mb-3">About this product</h3>
                   <p className="text-slate-700 text-base leading-relaxed line-clamp-4">
                     {product.description}
@@ -200,7 +223,7 @@ function ProductDetailsPage() {
                 </div>
               )}
 
-              {/* Benefits */}
+              {/* Benefits Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                 <div className="flex items-start gap-3 p-4 bg-white rounded-lg border border-slate-200 hover:shadow-md transition-shadow">
                   <Truck className="w-5 h-5 text-blue-600 flex-shrink-0 mt-1" />
@@ -233,11 +256,12 @@ function ProductDetailsPage() {
               {/* Quantity Selector */}
               <div className="flex items-center gap-4">
                 <span className="font-semibold text-slate-700 whitespace-nowrap">Quantity:</span>
-                <div className="flex items-center border-2 border-slate-300 rounded-lg bg-white">
+                <div className="flex items-center border-2 border-slate-300 rounded-lg bg-white hover:border-slate-400 transition-colors">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     className="px-4 py-2 text-slate-600 hover:bg-slate-100 transition font-bold text-lg"
                     title="Decrease quantity"
+                    aria-label="Decrease quantity"
                   >
                     −
                   </button>
@@ -248,11 +272,13 @@ function ProductDetailsPage() {
                     value={quantity}
                     onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
                     className="w-16 text-center font-bold text-slate-900 border-l-2 border-r-2 border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50 py-2"
+                    aria-label="Quantity input"
                   />
                   <button
                     onClick={() => setQuantity(quantity + 1)}
                     className="px-4 py-2 text-slate-600 hover:bg-slate-100 transition font-bold text-lg"
                     title="Increase quantity"
+                    aria-label="Increase quantity"
                   >
                     +
                   </button>
@@ -260,49 +286,75 @@ function ProductDetailsPage() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-3 pt-4">
-                {/* Add to Cart Button */}
-                <button
-                  onClick={handleAddToCart}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3.5 rounded-lg font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 group"
-                >
-                  <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                  Add to Cart
-                </button>
+              <div className="flex gap-3 pt-4 flex-wrap">
+                {/* ✅ NEW - Add to Cart Button with Guest Check */}
+                {isGuest ? (
+                  <button
+                    onClick={() => {
+                      setToast({ 
+                        message: '🔐 Login required to add items to cart', 
+                        type: 'warning' 
+                      });
+                      setTimeout(() => navigate('/login'), 1500);
+                    }}
+                    className="flex-1 min-w-[200px] bg-gradient-to-r from-yellow-500 to-orange-500 text-white py-3.5 rounded-lg font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 group"
+                  >
+                    <LogIn className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    Login to Buy
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleAddToCart}
+                    className="flex-1 min-w-[200px] bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3.5 rounded-lg font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 group"
+                  >
+                    <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    Add to Cart
+                  </button>
+                )}
 
                 {/* Wishlist Button */}
                 <button
                   onClick={handleWishlist}
-                  className={`px-4 py-3.5 rounded-lg font-bold transition-all border-2 flex items-center justify-center gap-2 ${
+                  className={`px-4 py-3.5 rounded-lg font-bold transition-all border-2 flex items-center justify-center gap-2 min-w-[60px] ${
                     isInWishlist(product.id)
                       ? 'bg-red-50 border-red-300 text-red-600 hover:bg-red-100'
                       : 'border-slate-300 text-slate-700 hover:bg-slate-50'
                   }`}
                   title="Add to wishlist"
+                  aria-label="Add to wishlist"
                 >
                   <Heart className={`w-5 h-5 ${isInWishlist(product.id) ? 'fill-current' : ''}`} />
                 </button>
 
-                {/* Compare Button */}
+                {/* ✅ NEW - Compare Button with Guest Check */}
                 <button
                   onClick={handleComparison}
-                  className={`px-4 py-3.5 rounded-lg font-bold transition-all border-2 flex items-center justify-center gap-2 ${
+                  className={`px-4 py-3.5 rounded-lg font-bold transition-all border-2 flex items-center justify-center gap-2 min-w-[60px] ${
                     isInComparison(product.id)
                       ? 'bg-amber-50 border-amber-300 text-amber-600 hover:bg-amber-100'
                       : 'border-slate-300 text-slate-700 hover:bg-slate-50'
                   }`}
-                  title="Add to comparison"
+                  title={isGuest ? 'Login required for comparison' : 'Add to comparison'}
+                  aria-label="Add to comparison"
                 >
                   <BarChart3 className="w-5 h-5" />
                 </button>
               </div>
+
+              {/* ✅ NEW - Guest Mode Notice */}
+              {isGuest && (
+                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 text-sm font-semibold flex items-center gap-2">
+                  <span>👤</span>
+                  <span>Login to add items to cart and use comparison</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* Tabs Section */}
         <div className="mb-12 bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
-          {/* Tabs */}
+          {/* Tabs Header */}
           <div className="flex border-b border-slate-200">
             <button
               onClick={() => setActiveTab('reviews')}
@@ -341,6 +393,7 @@ function ProductDetailsPage() {
                 onProductClick={(prod) => {
                   setProduct(prod);
                   navigate(`/product/${prod.id}`);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
               />
             )}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Filter, X, Zap, Search } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Filter, X, Zap, Search, LogIn, ShoppingCart } from 'lucide-react';
 import fakeStoreAPI from '../utils/fakeStoreAPI';
 import PriceRangeFilter from '../components/PriceRangeFilter';
 import SortDropdown from '../components/SortDropdown';
@@ -9,6 +9,8 @@ import StockBadge from '../components/StockBadge';
 import Toast from '../components/Toast';
 import { useFilter } from '../contexts/FilterContext';
 import { useFilters } from '../hooks/useFilters';
+import { useAuth } from '../contexts/AuthContext';
+import { useCart } from '../contexts/CartContext';
 import { APP_CONFIG } from '../utils/constants';
 
 const HomePage = () => {
@@ -24,6 +26,8 @@ const HomePage = () => {
   const navigate = useNavigate();
   const { filters, resetFilters, hasActiveFilters, updateFilter } = useFilter();
   const { applyFilters } = useFilters();
+  const { isAuthenticated, isGuest } = useAuth(); // ✅ NEW - Get auth state
+  const { addToCart } = useCart(); // ✅ NEW - Get cart function
 
   // Fetch data on mount
   useEffect(() => {
@@ -99,6 +103,23 @@ const HomePage = () => {
     setShowMobileFilter(false);
   };
 
+  // ✅ NEW - Handle Add to Cart (with guest check)
+  const handleAddToCart = (product) => {
+    if (isGuest) {
+      setToast({ 
+        message: '🔐 Login required to add items to cart', 
+        type: 'warning' 
+      });
+      setTimeout(() => navigate('/login'), 1500);
+      return;
+    }
+    addToCart(product, 1);
+    setToast({ 
+      message: `✓ ${product.title} added to cart!`, 
+      type: 'success' 
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 font-sans">
       {/* Hero Section */}
@@ -108,6 +129,14 @@ const HomePage = () => {
           <p className="text-blue-100 text-lg max-w-2xl">
             Shop our exclusive collection with advanced filters, search, and smart sorting features
           </p>
+          {/* ✅ NEW - Guest Mode Notice */}
+          {isGuest && (
+            <div className="mt-4 p-3 bg-yellow-400 bg-opacity-20 border border-yellow-300 rounded-lg inline-block">
+              <p className="text-yellow-100 font-semibold flex items-center gap-2">
+                👀 Browsing as Guest - <button onClick={() => navigate('/login')} className="underline hover:no-underline">Login to Shop</button>
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -305,11 +334,13 @@ const HomePage = () => {
                   {currentProducts.map((product) => (
                     <div
                       key={product.id}
-                      onClick={() => handleProductClick(product)}
-                      className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform hover:translate-y-[-6px] cursor-pointer border border-slate-100"
+                      className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform hover:translate-y-[-6px] border border-slate-100"
                     >
-                      {/* Product Image */}
-                      <div className="relative h-64 bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden flex items-center justify-center">
+                      {/* Product Image - Clickable */}
+                      <div 
+                        onClick={() => handleProductClick(product)}
+                        className="relative h-64 bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden flex items-center justify-center cursor-pointer"
+                      >
                         <img
                           src={product.image}
                           alt={product.title}
@@ -323,8 +354,11 @@ const HomePage = () => {
 
                       {/* Product Info */}
                       <div className="p-5">
-                        {/* Title */}
-                        <h3 className="font-bold text-slate-900 text-base line-clamp-2 mb-3 group-hover:text-blue-600 transition-colors">
+                        {/* Title - Clickable */}
+                        <h3 
+                          onClick={() => handleProductClick(product)}
+                          className="font-bold text-slate-900 text-base line-clamp-2 mb-3 group-hover:text-blue-600 transition-colors cursor-pointer"
+                        >
                           {product.title}
                         </h3>
 
@@ -347,7 +381,7 @@ const HomePage = () => {
                         </div>
 
                         {/* Price */}
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between mb-4">
                           <span className="font-bold text-lg text-slate-900">
                             ${product.price.toFixed(2)}
                           </span>
@@ -355,6 +389,31 @@ const HomePage = () => {
                             Save 20%
                           </span>
                         </div>
+
+                        {/* ✅ NEW - Add to Cart / Login Button */}
+                        {isGuest ? (
+                          <button
+                            onClick={() => {
+                              setToast({ 
+                                message: '🔐 Login required to add items to cart', 
+                                type: 'warning' 
+                              });
+                              setTimeout(() => navigate('/login'), 1500);
+                            }}
+                            className="w-full px-4 py-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-bold transition-all flex items-center justify-center gap-2 transform hover:scale-105"
+                          >
+                            <LogIn className="w-5 h-5" />
+                            Login to Buy
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleAddToCart(product)}
+                            className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition-all flex items-center justify-center gap-2 transform hover:scale-105"
+                          >
+                            <ShoppingCart className="w-5 h-5" />
+                            Add to Cart
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}
