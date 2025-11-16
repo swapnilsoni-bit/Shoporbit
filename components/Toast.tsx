@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Check, AlertCircle, Info, X, LucideIcon } from 'lucide-react';
+import { toastAnimation } from '@/lib/utils/animations';
 
 interface ToastProps {
   message: string;
@@ -57,29 +59,39 @@ export default function Toast({
   const IconComponent = CustomIcon || config.icon;
 
   return (
-    <div
+    <motion.div
       className={`
         fixed bottom-8 right-8 z-50
         ${config.bg} ${config.textColor}
         px-6 py-4 rounded-xl shadow-2xl
         border-l-4 ${config.border}
         flex items-center gap-3
-        animate-in slide-in-from-bottom-5
         backdrop-blur-sm
         max-w-sm
       `}
+      variants={toastAnimation}
+      initial="initial"
+      animate="animate"
+      exit="exit"
     >
-      <div className="flex-shrink-0">
+      <motion.div 
+        className="flex-shrink-0"
+        initial={{ scale: 0, rotate: -180 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+      >
         <IconComponent className="w-5 h-5" />
-      </div>
+      </motion.div>
       <p className="font-semibold text-sm flex-1">{message}</p>
-      <button
+      <motion.button
         onClick={onClose}
         className="flex-shrink-0 hover:opacity-80 transition-opacity"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
       >
         <X className="w-4 h-4" />
-      </button>
-    </div>
+      </motion.button>
+    </motion.div>
   );
 }
 

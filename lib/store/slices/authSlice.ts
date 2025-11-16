@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { User } from '@/types';
-import { clientFakeStoreAPI } from '@/lib/api/client-api';
+import { authService } from '@/lib/api/services/authService';
 import type { AppDispatch } from '../store';
 
 interface AuthState {
@@ -46,7 +46,7 @@ export const loginAsync = createAsyncThunk(
   'auth/login',
   async ({ username, password }: { username: string; password: string }, { rejectWithValue }) => {
     try {
-      const data = await clientFakeStoreAPI.login(username, password);
+      const data = await authService.login(username, password);
       if (data.token) {
         const userData: User = {
           username: username,

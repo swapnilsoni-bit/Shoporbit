@@ -1,6 +1,7 @@
 // Server-side API calls using Axios
 // This file is used in Server Components (page.tsx)
-import axiosInstance from './axios-instance';
+// DEPRECATED: Use productService from './services/productService' instead
+import axiosInstance from './base-api';
 import { Product } from '@/types';
 
 export const fakeStoreAPI = {

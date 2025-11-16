@@ -2,7 +2,8 @@
 
 // Client-side API calls using Axios
 // This file is used in Client Components
-import axiosInstance from './axios-instance';
+// DEPRECATED: Use productService from './services/productService' instead
+import axiosInstance from './base-api';
 import { Product, User } from '@/types';
 
 // Add request interceptor for auth token

@@ -1,42 +1,21 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { Star, ShoppingCart } from 'lucide-react';
-import { clientFakeStoreAPI } from '@/lib/api/client-api';
-import { getRelatedProducts } from '@/lib/utils/filterHelpers';
 import { Product } from '@/types';
 
 interface RelatedProductsProps {
   currentProduct: Product;
+  relatedProducts: Product[];
   onProductClick: (product: Product) => void;
 }
 
-export default function RelatedProducts({ currentProduct, onProductClick }: RelatedProductsProps) {
-  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchRelated = async () => {
-      try {
-        const allProducts = await clientFakeStoreAPI.getAllProducts(50);
-        const related = getRelatedProducts(allProducts, currentProduct, 4);
-        setRelatedProducts(related);
-      } catch (error) {
-        console.error('Error fetching related products:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (currentProduct) {
-      fetchRelated();
-    }
-  }, [currentProduct]);
-
-  if (loading) {
-    return <div className="text-center py-8">Loading related products...</div>;
-  }
-
+export default function RelatedProducts({
+  currentProduct,
+  relatedProducts,
+  onProductClick
+}: RelatedProductsProps) {
+  // No loading state - products fetched on server!
   if (relatedProducts.length === 0) {
     return null;
   }
@@ -54,10 +33,15 @@ export default function RelatedProducts({ currentProduct, onProductClick }: Rela
           >
             {/* Image */}
             <div className="relative w-full aspect-square bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden flex items-center justify-center">
-              <img
+              <Image
                 src={product.image}
                 alt={product.title}
+                width={300}
+                height={300}
                 className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300 p-4"
+                loading="lazy"
+                quality={80}
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               />
             </div>
 

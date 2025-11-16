@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useCart } from '@/lib/hooks/reduxHooks';
 import { useAuth } from '@/lib/hooks/reduxHooks';
 import { Trash2, ArrowRight, AlertCircle, ShoppingCart, Lock } from 'lucide-react';
@@ -145,10 +146,15 @@ export default function Cart() {
                   <div className="flex gap-6 items-start flex-col sm:flex-row">
                     {/* Product Image */}
                     <div className="w-full sm:w-28 h-28 flex-shrink-0 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg overflow-hidden flex items-center justify-center border border-slate-200">
-                      <img
+                      <Image
                         src={item.product.image}
                         alt={item.product.title}
+                        width={112}
+                        height={112}
                         className="w-full h-full object-contain p-3 hover:scale-110 transition-transform"
+                        loading="lazy"
+                        quality={80}
+                        sizes="112px"
                       />
                     </div>
 

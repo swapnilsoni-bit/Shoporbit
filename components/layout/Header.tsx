@@ -2,11 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, Heart, BarChart3, LogOut, User, Menu, X, Home } from 'lucide-react';
 import { useCart } from '@/lib/hooks/reduxHooks';
 import { useWishlist } from '@/lib/hooks/reduxHooks';
 import { useComparison } from '@/lib/hooks/reduxHooks';
 import { useAuth } from '@/lib/hooks/reduxHooks';
+import { slideDown, fadeIn, buttonHover, buttonTap } from '@/lib/utils/animations';
 
 function HeaderContent({ pathname }: { pathname: string | null }) {
   const { cart, cartCount } = useCart();
@@ -57,7 +60,12 @@ function HeaderContent({ pathname }: { pathname: string | null }) {
 
   return (
     <>
-      <header className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg sticky top-0 z-50">
+      <motion.header 
+        className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg sticky top-0 z-50"
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+      >
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo & Menu Button */}
@@ -77,10 +85,13 @@ function HeaderContent({ pathname }: { pathname: string | null }) {
               )}
 
               <Link href="/home" className="flex items-center gap-2 hover:opacity-90 transition">
-                <img
+                <Image
                   src="/favicon.ico"
                   alt="ShopOrbit Logo"
+                  width={40}
+                  height={40}
                   className="h-10 w-10 rounded-lg shadow-lg object-cover bg-white"
+                  priority
                 />
                 <span className="font-bold text-lg text-white hidden sm:inline">ShopOrbit</span>
               </Link>
@@ -88,36 +99,33 @@ function HeaderContent({ pathname }: { pathname: string | null }) {
 
             {/* Desktop Navigation */}
             <nav className={`${isMobile ? 'hidden' : 'flex'} items-center gap-8`}>
-              <Link href="/home" className="hover:text-blue-100 font-medium transition">
-                Shop
+              <Link href="/home" className="hover:text-blue-100 font-medium transition flex items-center gap-2">
+                <Home className="w-5 h-5" />
+                Home
               </Link>
               <Link href="/wishlist" className="hover:text-blue-100 font-medium transition">
                 Wishlist
               </Link>
-              {!isGuest && (
-                <Link href="/comparison" className="hover:text-blue-100 font-medium transition">
-                  Compare
-                </Link>
-              )}
+              <Link href="/comparison" className="hover:text-blue-100 font-medium transition">
+                Compare
+              </Link>
             </nav>
 
             {/* Right Icons & User Info */}
             <div className="flex items-center gap-6">
-              {/* Comparison Icon (authenticated only) */}
-              {!isGuest && (
-                <Link
-                  href="/comparison"
-                  className="relative p-2 hover:bg-white/10 rounded-lg transition"
-                  title="Comparison"
-                >
-                  <BarChart3 className="w-6 h-6" />
-                  {comparisonCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                      {comparisonCount}
-                    </span>
-                  )}
-                </Link>
-              )}
+              {/* Comparison Icon (accessible to all, guests will be redirected) */}
+              <Link
+                href="/comparison"
+                className="relative p-2 hover:bg-white/10 rounded-lg transition"
+                title="Comparison"
+              >
+                <BarChart3 className="w-6 h-6" />
+                {comparisonCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {comparisonCount}
+                  </span>
+                )}
+              </Link>
 
               {/* Wishlist Icon */}
               <Link
@@ -191,24 +199,36 @@ function HeaderContent({ pathname }: { pathname: string | null }) {
             </div>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Mobile Sidebar */}
-      {showSidebar && isMobile && (
+      <AnimatePresence>
+        {showSidebar && isMobile && (
         <div className="fixed inset-0 z-[100] lg:hidden">
-          <div
+          <motion.div
             className="fixed inset-0 bg-black/30 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             onClick={() => setShowSidebar(false)}
           />
 
-          <div className="fixed left-0 top-0 bottom-0 w-72 max-w-full bg-white shadow-xl overflow-y-auto">
+          <motion.div 
+            className="fixed left-0 top-0 bottom-0 w-72 max-w-full bg-white shadow-xl overflow-y-auto"
+            initial={{ x: -288 }}
+            animate={{ x: 0 }}
+            exit={{ x: -288 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+          >
             <div className="p-6 space-y-6">
               {/* Logo in Sidebar */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <img
+                  <Image
                     src="/favicon.ico"
                     alt="ShopOrbit Logo"
+                    width={32}
+                    height={32}
                     className="h-8 w-8 rounded-lg object-cover"
                   />
                   <h3 className="text-lg font-bold text-slate-900">ShopOrbit</h3>
@@ -239,6 +259,21 @@ function HeaderContent({ pathname }: { pathname: string | null }) {
                   Home
                 </Link>
 
+                {/* Comparison (accessible to all) */}
+                <Link
+                  href="/comparison"
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 rounded-lg font-semibold"
+                  onClick={() => setShowSidebar(false)}
+                >
+                  <BarChart3 className="w-5 h-5" />
+                  Compare
+                  {comparisonCount > 0 && (
+                    <span className="ml-auto bg-red-600 text-white text-xs font-bold rounded-full px-2">
+                      {comparisonCount}
+                    </span>
+                  )}
+                </Link>
+
                 <Link
                   href="/wishlist"
                   className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 rounded-lg font-semibold"
@@ -252,23 +287,6 @@ function HeaderContent({ pathname }: { pathname: string | null }) {
                     </span>
                   )}
                 </Link>
-
-                {/* Comparison (authenticated only) */}
-                {!isGuest && (
-                  <Link
-                    href="/comparison"
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 rounded-lg font-semibold"
-                    onClick={() => setShowSidebar(false)}
-                  >
-                    <BarChart3 className="w-5 h-5" />
-                    Compare
-                    {comparisonCount > 0 && (
-                      <span className="ml-auto bg-red-600 text-white text-xs font-bold rounded-full px-2">
-                        {comparisonCount}
-                      </span>
-                    )}
-                  </Link>
-                )}
 
                 {/* Cart (authenticated only) */}
                 {!isGuest && (
@@ -319,9 +337,10 @@ function HeaderContent({ pathname }: { pathname: string | null }) {
                 </Link>
               )}
             </div>
-          </div>
+          </motion.div>
         </div>
-      )}
+        )}
+      </AnimatePresence>
     </>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useWishlist } from '@/lib/hooks/reduxHooks';
 import { useAuth } from '@/lib/hooks/reduxHooks';
 import { Heart, ShoppingCart, ArrowRight, Trash2, Lock } from 'lucide-react';
@@ -133,10 +134,15 @@ export default function Wishlist() {
                     onClick={() => handleProductClick(product)}
                     className="relative h-56 bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden cursor-pointer flex items-center justify-center group"
                   >
-                    <img
+                    <Image
                       src={product.image}
                       alt={product.title}
+                      width={300}
+                      height={300}
                       className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300 p-4"
+                      loading="lazy"
+                      quality={80}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     />
                     <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
                   </div>

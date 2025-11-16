@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { X } from 'lucide-react';
 import { useComparison } from '@/lib/hooks/reduxHooks';
 import RatingDisplay from './RatingDisplay';
@@ -30,10 +31,15 @@ export default function ProductComparison() {
                   <X className="w-4 h-4" />
                 </button>
                 <div className="max-w-xs">
-                  <img
+                  <Image
                     src={product.image}
                     alt={product.title}
+                    width={80}
+                    height={80}
                     className="w-20 h-20 object-contain mb-2"
+                    loading="lazy"
+                    quality={80}
+                    sizes="80px"
                   />
                   <p className="text-sm font-semibold text-slate-900 line-clamp-2">
                     {product.title}

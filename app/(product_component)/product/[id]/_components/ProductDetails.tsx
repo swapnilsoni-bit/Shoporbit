@@ -1,16 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useCart } from '@/lib/hooks/reduxHooks';
 import { useWishlist } from '@/lib/hooks/reduxHooks';
 import { useComparison } from '@/lib/hooks/reduxHooks';
+import { useAddToCartMutation } from '@/lib/hooks/useCartMutations';
+import { useAddToWishlistMutation, useRemoveFromWishlistMutation } from '@/lib/hooks/useWishlistMutations';
 import { useAuth } from '@/lib/hooks/reduxHooks';
 import {
   Heart, ShoppingCart, Truck, RotateCcw, Shield,
   ArrowLeft, BarChart3, Star, LoaderCircle, LogIn
 } from 'lucide-react';
-import { clientFakeStoreAPI } from '@/lib/api/client-api';
+// Removed clientFakeStoreAPI - all data fetched on server
 import Toast from '@/components/Toast';
 import RatingDisplay from '@/components/RatingDisplay';
 import ReviewForm from '@/components/ReviewForm';
@@ -20,24 +23,33 @@ import { Product } from '@/types';
 
 interface ProductDetailsProps {
   initialProduct: Product | null;
+  initialRelatedProducts?: Product[];
   initialError: string | null;
 }
 
-export default function ProductDetails({ initialProduct, initialError }: ProductDetailsProps) {
+export default function ProductDetails({
+  initialProduct,
+  initialRelatedProducts = [],
+  initialError
+}: ProductDetailsProps) {
   const router = useRouter();
   const { isGuest } = useAuth();
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { addToComparison, removeFromComparison, isInComparison, getComparisonCount } = useComparison();
+  
+  // React Query mutations with optimistic updates
+  const addToCartMutation = useAddToCartMutation();
+  const addToWishlistMutation = useAddToWishlistMutation();
+  const removeFromWishlistMutation = useRemoveFromWishlistMutation();
 
-  const [product, setProduct] = useState<Product | null>(initialProduct);
+  const [product] = useState<Product | null>(initialProduct);
   const [quantity, setQuantity] = useState(1);
-  const [loading, setLoading] = useState(!initialProduct);
-  const [error, setError] = useState<string | null>(initialError);
+  const [error] = useState<string | null>(initialError);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' | 'warning' } | null>(null);
   const [activeTab, setActiveTab] = useState('reviews');
 
-  // Handle Add to Cart with guest check
+  // Handle Add to Cart with guest check and optimistic updates
   const handleAddToCart = () => {
     if (!product) return;
     if (isGuest) {
@@ -48,23 +60,54 @@ export default function ProductDetails({ initialProduct, initialError }: Product
       setTimeout(() => router.push('/login'), 1500);
       return;
     }
-    addToCart(product, quantity);
-    setToast({
-      message: `✓ Added ${quantity} item(s) to cart!`,
-      type: 'success'
-    });
-    setQuantity(1);
+    // Use optimistic mutation for instant UI feedback
+    addToCartMutation.mutate(
+      { product, quantity },
+      {
+        onSuccess: () => {
+          // Also update Redux for consistency
+          addToCart(product, quantity);
+          setToast({
+            message: `✓ Added ${quantity} item(s) to cart!`,
+            type: 'success'
+          });
+          setQuantity(1);
+        },
+        onError: () => {
+          setToast({
+            message: 'Failed to add to cart. Please try again.',
+            type: 'error'
+          });
+        },
+      }
+    );
   };
 
-  // Wishlist Handlers
+  // Wishlist Handlers with optimistic updates
   const handleWishlist = () => {
     if (!product) return;
     if (isInWishlist(product.id)) {
-      removeFromWishlist(product.id);
-      setToast({ message: '✓ Removed from wishlist', type: 'info' });
+      // Use optimistic mutation
+      removeFromWishlistMutation.mutate(product.id, {
+        onSuccess: () => {
+          removeFromWishlist(product.id);
+          setToast({ message: '✓ Removed from wishlist', type: 'info' });
+        },
+        onError: () => {
+          setToast({ message: 'Failed to remove from wishlist', type: 'error' });
+        },
+      });
     } else {
-      addToWishlist(product);
-      setToast({ message: '✓ Added to wishlist!', type: 'success' });
+      // Use optimistic mutation
+      addToWishlistMutation.mutate(product, {
+        onSuccess: () => {
+          addToWishlist(product);
+          setToast({ message: '✓ Added to wishlist!', type: 'success' });
+        },
+        onError: () => {
+          setToast({ message: 'Failed to add to wishlist', type: 'error' });
+        },
+      });
     }
   };
 
@@ -92,18 +135,7 @@ export default function ProductDetails({ initialProduct, initialError }: Product
     }
   };
 
-  // Loading State
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-50">
-        <div className="space-y-6 text-center p-8 bg-white rounded-xl shadow-lg border border-slate-200">
-          <LoaderCircle className="w-16 h-16 text-blue-600 animate-spin mx-auto" />
-          <p className="text-xl text-slate-900 font-semibold">Loading product details...</p>
-          <p className="text-slate-500 font-medium">Please wait while we fetch the information</p>
-        </div>
-      </div>
-    );
-  }
+  // No loading state - all data fetched on server!
 
   // Error/Not Found State
   if (error || !product) {
@@ -146,10 +178,17 @@ export default function ProductDetails({ initialProduct, initialError }: Product
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
           {/* Product Image */}
           <div className="flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl p-8 min-h-[400px] shadow-lg border border-slate-300 hover:shadow-xl transition-shadow">
-            <img
+            <Image
               src={product.image}
               alt={product.title}
+              width={600}
+              height={600}
               className="max-w-full max-h-96 object-contain drop-shadow-lg hover:scale-105 transition-transform duration-300"
+              loading="eager"
+              quality={90}
+              priority
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              aria-label={`${product.title} product image`}
             />
           </div>
 
@@ -374,8 +413,8 @@ export default function ProductDetails({ initialProduct, initialError }: Product
             {activeTab === 'related' && (
               <RelatedProducts
                 currentProduct={product}
+                relatedProducts={initialRelatedProducts}
                 onProductClick={(prod) => {
-                  setProduct(prod);
                   router.push(`/product/${prod.id}`);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}

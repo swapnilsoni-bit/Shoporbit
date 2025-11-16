@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Footer() {
   const [pathname, setPathname] = useState<string | null>(null);
@@ -43,10 +44,13 @@ export default function Footer() {
           {/* About */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <img
+              <Image
                 src="/favicon.ico"
                 alt="ShopOrbit Logo"
+                width={40}
+                height={40}
                 className="h-10 w-10 rounded-lg object-cover"
+                loading="lazy"
               />
               <span className="font-bold text-lg">ShopOrbit</span>
             </div>

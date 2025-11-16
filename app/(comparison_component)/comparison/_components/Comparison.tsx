@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { ArrowLeft, Trash2, BarChart3, Lock } from 'lucide-react';
 import { useComparison } from '@/lib/hooks/reduxHooks';
 import { useAuth } from '@/lib/hooks/reduxHooks';
@@ -147,10 +148,15 @@ export default function Comparison() {
                     <th key={product.id} className="text-center py-6 px-6 font-bold">
                       <div className="flex flex-col items-center gap-4 min-w-max">
                         <div className="w-24 h-24 bg-slate-100 rounded-lg overflow-hidden flex items-center justify-center border-2 border-white shadow-md">
-                          <img
+                          <Image
                             src={product.image}
                             alt={product.title}
+                            width={96}
+                            height={96}
                             className="h-full w-full object-contain p-2 hover:scale-110 transition-transform"
+                            loading="lazy"
+                            quality={80}
+                            sizes="96px"
                           />
                         </div>
                         <p className="text-sm line-clamp-2 max-w-xs text-white font-semibold">
@@ -242,10 +248,15 @@ export default function Comparison() {
               >
                 <div className="mb-4 flex flex-col items-center">
                   <div className="w-24 h-24 bg-slate-100 rounded-lg overflow-hidden flex items-center justify-center mb-3 shadow-md">
-                    <img
+                    <Image
                       src={product.image}
                       alt={product.title}
+                      width={96}
+                      height={96}
                       className="h-full w-full object-contain p-2"
+                      loading="lazy"
+                      quality={80}
+                      sizes="96px"
                     />
                   </div>
                   <h3 className="font-bold text-center line-clamp-2 text-slate-900">

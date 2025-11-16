@@ -24,11 +24,20 @@ export default function Login() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation(); // Prevent native validation
     setLocalError(null);
 
-    // Validation
-    if (!username.trim() || !password.trim()) {
-      setLocalError('Please fill in all fields');
+    // Validation with specific error messages
+    if (!username.trim() && !password.trim()) {
+      setLocalError('Please enter both username and password');
+      return;
+    }
+    if (!username.trim()) {
+      setLocalError('Please enter your username');
+      return;
+    }
+    if (!password.trim()) {
+      setLocalError('Please enter your password');
       return;
     }
 
@@ -137,7 +146,7 @@ export default function Login() {
           )}
 
           {/* Login Form */}
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-5" noValidate>
             {/* Username Field */}
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-slate-700">Username</label>
@@ -145,11 +154,15 @@ export default function Login() {
                 <User className="absolute left-3 top-3.5 w-5 h-5 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
                 <input
                   type="text"
+                  name="username"
+                  data-field="username"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={(e) => {
+                    setUsername(e.target.value);
+                    if (localError) setLocalError(null);
+                  }}
                   placeholder="Enter your username"
                   className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-slate-900 placeholder-slate-400 transition-all hover:border-slate-400"
-                  required
                   disabled={loading}
                   aria-label="Username"
                 />
@@ -163,11 +176,15 @@ export default function Login() {
                 <Lock className="absolute left-3 top-3.5 w-5 h-5 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
                 <input
                   type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  data-field="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (localError) setLocalError(null);
+                  }}
                   placeholder="Enter your password"
                   className="w-full pl-10 pr-12 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-slate-900 placeholder-slate-400 transition-all hover:border-slate-400"
-                  required
                   disabled={loading}
                   aria-label="Password"
                 />
